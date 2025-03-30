@@ -1,6 +1,7 @@
 import orderbook.models as models
 from rest_framework import serializers
 import datetime
+from orderbook.tasks import run_matching_task
 
 
 class TokenSerializer(serializers.ModelSerializer):
@@ -16,7 +17,7 @@ class OrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context["request"]
 
-        return models.Order.objects.create(
+        new_order = models.Order.objects.create(
             user=request.user,
             token=validated_data["token"],
             price=validated_data["price"],
@@ -24,6 +25,7 @@ class OrderSerializer(serializers.ModelSerializer):
             order_type=validated_data["order_type"],
             timestamp=datetime.datetime.now(),
         )
+        return new_order
 
     class Meta:
         model = models.Order
